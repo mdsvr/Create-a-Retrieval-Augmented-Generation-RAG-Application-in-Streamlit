@@ -4,7 +4,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI  # Updated to ChatOpenAI
 import os
 import tempfile
 from dotenv import load_dotenv
@@ -66,14 +66,13 @@ def create_vector_store(texts):
     vector_store = FAISS.from_texts([doc.page_content for doc in texts], embeddings)
     return vector_store
 
-
 if uploaded_files:
     vector_store = create_vector_store(texts)
     st.success("Vector store created successfully.")
 
 # Set up RAG model
 def setup_rag_model(vector_store):
-    llm = OpenAI(model="gpt-3.5-turbo", temperature=0.7, api_key=os.getenv("OPENAI_API_KEY"))  # Use environment variable
+    llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7, openai_api_key=os.getenv("OPENAI_API_KEY"))  # Updated to ChatOpenAI
     retriever = vector_store.as_retriever()
     qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
     return qa_chain
